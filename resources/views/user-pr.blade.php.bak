@@ -1,0 +1,202 @@
+@extends('layouts.master')
+
+@section('content')
+  <main id="main">
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section class="breadcrumbs">
+      <div class="container">
+
+        <div class="d-flex justify-content-between align-items-center">
+          <h2>Your Purchasing Request</h2>
+          <ol>
+            <li><a href="{{ url('welcome') }}">Home</a></li>
+            <li>Purchasing Request</li>
+          </ol>
+        </div>
+
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+    <section class="inner-page pt-4">
+      <div class="container">
+        <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="100">
+
+          <div class="col-lg-3 col-md-4">
+
+            <div class="info">
+              <div>
+                <div style="float: right; width:75%;">
+                <Strong>{{ Auth::user()->name }}</Strong> <br>
+                
+                <span style="background-color: green;white-space: pre-line;text-align: left;" class="badge badge-secondary">{{ Auth::user()->department }}</span>
+              </div>
+                <div>
+                <img src="{{ asset('public/assets/global/img/no-profile.jpg') }}" alt="" width="70"  class="logo-default-login" /> 
+                </div>
+                
+              <hr>
+              </div>
+              <div class="email">
+                <i class="bi bi-envelope"></i> {{ Auth::user()->email_sf }}
+              </div>
+
+              <div>
+                <i class="bi bi-phone"></i> +{{ Auth::user()->phone }}
+                <p></p>
+              </div>
+            </div>
+            <hr>
+            <div>
+                <Strong>Transaction</Strong> <br> <br>
+                  <div class="email">
+                  <a href="{{ url('user-pr') }}"><i class="bi bi-newspaper"></i> Purchasing Request @if($data['pr_count']!=0)<span class="badge-notif" data-badge="{{ $data['pr_count'] }}"></span>@endif </a> 
+                  <p></p>
+              </div>
+
+              <div>
+                  <a href="{{ url('user-ticket') }}"> <i class="bi bi-ticket"></i> Ticket @if($data['ticket_count']!=0)<span class="badge-notif" data-badge="{{ $data['ticket_count'] }}"></span>@endif</a> 
+                  <p></p>
+              </div>
+              <!-- <div>
+                  <a href=""> <i class="bi bi-envelope"></i> Message @if($data['ticket_count']!=0)<span class="badge-notif" data-badge="{{ $data['ticket_count'] }}"></span>@endif</a> 
+                  <p></p>
+              </div> -->
+            </div>
+            <hr>
+
+          </div>
+
+          <div class="col-lg-8 col-md-12">
+            <h3>List Purchasing Request</h3> <br>
+          <div class="row custom-position-header">
+                    <div class="float-left col-xl-3 col-md-3 col-xs-8 m-b-10px">
+                        <input name="name" id="search-value" type="search" autocomplete="off" @if(isset($_GET['search'])) value="{{ $_GET['search'] }}" @endif placeholder="Search" class="form-control">
+                    </div>
+                    
+                    <div class="col-xl-3 col-md-3 m-b-10px">
+                        <div class="form-group">
+                            <select class="form-control" name="status" id="status">
+                            @if(!isset($_GET['status']))
+                                <option value="">Filter Status</option>
+                                <option value="0">New</option>
+                                <option value="1">Partial Approve</option>
+                                <option value="2">Fully Approved</option>
+                            @elseif($_GET['status'] == '1')
+                                <option value="">No Filter</option>
+                                <option value="0">New</option>
+                                <option value="1" selected>Partial Approve</option>
+                                <option value="2">Fully Approved</option>
+                            @elseif($_GET['status'] == '2')
+                                <option value="">No Filter</option>
+                                <option value="0">New</option>
+                                <option value="1">Partial Approve</option>
+                                <option value="2" selected>Fully Approved</option>
+                            @else
+                                <option value="">No Filter</option>
+                                <option value="0" selected>New</option>
+                                <option value="1">Partial Approve</option>
+                                <option value="2">Fully Approved</option>
+                            @endif
+                            </select>
+                        </div>
+                    </div>
+                    <div class="float-left col-xl-3 col-md-3 col-xs-8 m-b-10px">
+                        <!-- <input name="date" id="date-value" type="date" autocomplete="off" @if(isset($_GET['date'])) value="{{ $_GET['date'] }}" @endif placeholder="Search" class="form-control"> -->
+                    </div>
+                    
+                    <div class="col-xl-3 col-md-3 col-xs-4 m-b-10px">
+                        <button type="button" id="search-button" class="btn btn-primary">Filter</button>
+                        <a href="{{ url('user-pr') }}" style="text-decoration:none;color:green;font-size:10px;margin-left:5px;">Reset Filter</a>
+                    </div>
+                </div>
+          <hr>
+          <table class="table" style="width: 99%">
+          @foreach($data['pr'] as $pr)
+                        <tr>
+                            <td style="vertical-align:top;width: 65%;" colspan="3"><strong><i class="bi bi-newspaper"></i> PR</strong> {{ date('d F Y',strtotime($pr->created_at))}}
+                           <span   style="background-color: #001f3f; color: white" class="badge badge-secondary">@if($pr->status=='0')
+                                {{ 'New'}}
+                                @elseif($pr->status=='1')
+                                {{ 'Partial Aproved'}}
+                                @elseif($pr->status=='2')
+                                {{ 'Fully Approved'}}
+                                @else
+                                {{ '-' }}
+                                @endif </span>  
+                            <strong style="color: grey; margin-left:20px;">#{{ $pr->pr_number }} </strong>  
+                                 </td>
+                                <td style="vertical-align:top;width: 25%;" ></td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align:top;width: 40%;"><strong><i class="bi bi-person"></i> Category<br>
+                                    <span style="color: grey;font-size:12px">@if($pr->pr_category==1)
+                                {{ "License" }}
+                                @else
+                                {{ "Inventory : " }}
+                                @endif {{ $pr->inventory_nama }}</span><br>
+                                    <span style="color: grey;font-size:12px">to : {{ $pr->dept_name }}</span></td>
+                            <td style="vertical-align:top;width: 25%;"></td>
+                            <td></td>
+                            <td style="vertical-align:top;width: 25%;"><strong> Message</strong><br><span style="color: grey;font-size:12px">{{ $pr->pr_description }}</span><br> 
+                                   
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"></td>
+                            <td> 
+                            
+                            <div style="float:right;">
+                            @if($pr->rate=='')
+                              @if($pr->status=='2')
+                                <a class="btn btn-success" href="{{ url('review-pr/'.$pr->pr_id) }}">  Review</a> 
+                              @endif
+                            @else
+                            <a class="btn btn-warning" >{{ $pr->rate }} <i class="bi bi-star-fill"></i></a>
+                            @endif
+                            <i class="bi bi-grip-vertical" style="float:right;"></i>
+                            </div></td>
+                        </tr>
+                @endforeach
+                </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+
+  @endsection
+  
+@section('myscript')
+  <script>
+    
+    $(function () {
+      // modal.style.display = "block";
+     
+        $('#search-button').click(function(){
+            var search = $('#search-value').val();
+            var date = $('#date-value').val();
+            var status = $('#status').val();
+            if(search == "" && status == "" && date == ""){  //reset
+                window.location.href="user-pr";
+            }else if(search == "" && status == ""){ // date
+                window.location.href="user-pr?date="+date;
+            }else if(search == "" && date == ""){ // status
+                window.location.href="user-pr?status="+status;
+            }else if(date == "" && status == ""){ // search
+                window.location.href="user-pr?search="+search;
+            }else if(search == null || search == ""){  // date + sts
+                window.location.href="user-pr?date="+date+"&status="+status;
+            }else if(status == null || status == ""){ // date+search
+                window.location.href="user-pr?search="+search+"&date="+date;
+            }else if(date == null || date == ""){ // sts+search
+                window.location.href="user-pr?search="+search+"&status="+status;
+            }else {
+                window.location.href="user-pr?search="+search+"&status="+status+"&date="+date;
+            }
+        });
+    });
+  </script>
+  @endsection
+  

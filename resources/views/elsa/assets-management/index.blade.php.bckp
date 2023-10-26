@@ -1,0 +1,167 @@
+@extends('panel.master')
+
+@section('css')
+
+<link href="{{ asset('public/assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
+
+@endsection
+
+@section('content')
+
+<div class="content-body-white">
+    @if(session()->has('err_message'))
+        <div class="alert alert-danger alert-dismissible" role="alert" auto-close="10000">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            {{ session()->get('err_message') }}
+        </div>
+    @endif
+    @if(session()->has('suc_message'))
+        <div class="alert alert-success alert-dismissible" role="alert" auto-close="10000">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            {{ session()->get('suc_message') }}
+        </div>
+    @endif
+    <div class="page-head">
+        <div class="page-title">
+            <h1>Assets Management </h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+
+            <div class="table-responsive custom--2">
+                <table id="sorting-table" class="table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Name</th>
+                            <!-- <th>Status</th> -->
+                            <th class="text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach($data['assets'] as $assets)
+                        <tr>
+                            <td>{{ $assets->no }}</td>
+                            <td>{{ $assets->asset_name }}</td>
+                            <!-- <td>@if($assets->flag==1)
+                                {{ "Active" }}
+                                @else
+                                {{ "Inactive" }}
+                                @endif
+                            </td> -->
+                            <td class="text-right">
+                                @if($data['actionmenu']->u==1)
+                                <a href="#" data-toggle="modal" data-target="#modal-edit-assets-{{ $assets->asset_id }}"><i class="fa fa-pencil fa-lg custom--1"></i></a>
+                                <!-- <a href="#" data-toggle="modal" data-target="#modal-reset-assets-{{ $assets->id }}"><i class="fa fa-key fa-lg custom--1"></i></a> -->
+                                @endif
+                                @if($data['actionmenu']->d==1)
+                                <a href="#" data-toggle="modal" data-target="#modal-delete-assets-{{ $assets->asset_id }}"><i class="fa fa-trash fa-lg custom--1"></i></a>
+                                @endif
+
+                            </td>
+                        </tr>
+                        @endforeach
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+    
+    <div id="modal-add-assets" class="modal fade">
+        <form method="post" action="{{url('insert-assets')}}" enctype="multipart/form-data">
+          {{csrf_field()}}
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-body text-center">
+                        <h2>Add Assets</h2>
+                        <br>
+                        <div class="form-group text-left">
+                            <label class="form-control-label">assets: *</label>
+                            <input type="text" name="name" class="form-control" required="">
+                        </div>
+                    </div>
+                    <input type="hidden" name="id" value=""/>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">No</button>
+                        <button type="submit" class="btn btn-success">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- Modal Edit assets -->
+    @foreach($data['assets'] as $assets)
+    <div id="modal-edit-assets-{{ $assets->asset_id }}" class="modal fade">
+        <form method="post" action="{{url('update-assets')}}" enctype="multipart/form-data">
+          {{csrf_field()}}
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-body text-center">
+                        <h2>Edit Assets</h2>
+                        <br>
+                        <div class="form-group text-left">
+                          <input type="hidden" name="id" value="{{ $assets->asset_id }}"/>
+                            <label class="form-control-label">Name: *</label>
+                            <input type="text" name="name" class="form-control" value="{{ $assets->asset_name }}" required="">
+                        </div>
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">No</button>
+                        <button type="submit" class="btn btn-success">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Modal Delete -->
+    <div id="modal-delete-assets-{{ $assets->id }}" class="modal fade">
+        <form method="post" action="{{url('delete-assets')}}" enctype="multipart/form-data">
+          {{csrf_field()}}
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-body text-center">
+                        <h2>Warning</h2>
+                        <p>Are you sure?</p>
+                    </div>
+                    <input type="hidden" name="id" value="{{ $assets->asset_id }}"/>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">No</button>
+                        <button type="submit" class="btn btn-success">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    @endforeach
+
+
+@endsection
+
+@section('myscript')
+
+    <script src="{{ asset('public/assets/global/plugins/datatables/datatables.min.js') }}"></script>
+    <script>
+    $(function () {
+        $('#sorting-table').DataTable( {
+            "dom": '<"toolbar">frtip',
+            "ordering": true,
+            "info":     true,
+            "paging":     true,
+            "searching":     true,
+        } );
+        <?php if($data['actionmenu']->c==1){ ?>
+        $("div.toolbar").html('<a class="float-right btn btn-success" data-toggle="modal" data-target="#modal-add-assets" href="#">Tambah</a>');
+        <?php }else{ ?>
+            $("div.toolbar").html('<br>');
+        <?php } ?>
+    });
+    </script>
+@endsection

@@ -1,0 +1,71 @@
+<?php
+namespace App\Models\Table\CompletenessComponent;
+
+use Illuminate\Database\Eloquent\Model;
+
+class ProductionOrder extends Model {
+    protected $connection   = "mysql7";
+    protected $table        = "production_order";
+    protected $primaryKey   = 'id';
+    protected $fillable     = [
+        'AUFNR',
+        'AUART',
+        'AUTYP',
+        'ERNAM',
+        'CREATOR',
+        'OBKNR',
+        'PPOSNR',
+        'DATUM_PRO',
+        'UZEIT',
+        'ANZSN',
+        'OBZAE',
+        'EQUNR',
+        'SERNR',
+        'MATNR',
+        'DATUM_SN',
+        'RSNUM',
+        'GLTRP_SAP',
+        'GSTRP',
+        'FTRMS',
+        'GLTRS',
+        'GSTRS',
+        'GSTRI',
+        'GLTRI',
+        'FTRMI',
+        'PRUEFLOS',
+        'PLNUM',
+        'STRMP_SAP',
+        'ETRMP',
+        'KDAUF',
+        'KDPOS',
+        'PSMNG',
+        'MEINS',
+        'LTRMI',
+        'LTRMP',
+        'XLOEK',
+        'OBJNR',
+        'STAT',
+        'DWERK',
+        'STLNR',
+        'STLAL',
+        'AUFPL',
+        'KTEXT',
+        'PHAS1',
+        'PHAS2',
+        'PHAS3',
+        'IDAT1',
+        'IDAT2',
+        'IDAT3',
+        'MAKTX',
+        'GroupProduct',
+        'persen',
+        'persen_gi',
+        'persen_alokasi',
+        'created_at',
+        'updated_at',
+        'start_date_api',
+        'finish_date_api',
+        'STAT_DESC',
+        'DATE_STAT_CREATED'
+    ];
+}

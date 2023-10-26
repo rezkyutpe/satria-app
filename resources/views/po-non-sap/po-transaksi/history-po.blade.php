@@ -1,0 +1,546 @@
+@extends('panel.master')
+
+@section('css')
+
+<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> -->
+<link href="{{ asset('assets/global/plugins/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css" />
+<style>
+    a.disabled {
+        pointer-events: none;
+        cursor: default;
+    }
+.panel-heading .accordion-toggle:after {
+    /* symbol for "opening" panels */
+    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+    content: "\e114";    /* adjust as needed, taken from bootstrap.css */
+    float: right;        /* adjust as needed */
+    color: grey;         /* adjust as needed */
+}
+.panel-heading .accordion-toggle.collapsed:after {
+    /* symbol for "collapsed" panels */
+    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+}
+    a.disabled {
+        pointer-events: none;
+        cursor: default;
+    }
+    .timeline {
+    position: relative;
+    padding: 21px 0px 10px;
+    margin-top: 4px;
+    margin-bottom: 30px;
+}
+
+.timeline .line {
+    position: absolute;
+    width: 4px;
+    display: block;
+    background: currentColor;
+    top: 0px;
+    bottom: 0px;
+    margin-left: 30px;
+}
+
+.timeline .separator {
+    border-top: 1px solid currentColor;
+    padding: 5px;
+    padding-left: 40px;
+    font-style: italic;
+    font-size: .9em;
+    margin-left: 30px;
+}
+
+.timeline .line::before { top: -4px; }
+.timeline .line::after { bottom: -4px; }
+.timeline .line::before,
+.timeline .line::after {
+    content: '';
+    position: absolute;
+    left: -4px;
+    width: 12px;
+    height: 12px;
+    display: block;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.timeline .panel {
+    position: relative;
+    margin: 10px 0px 21px 70px;
+    clear: both;
+}
+
+.timeline .panel::before {
+    position: absolute;
+    display: block;
+    top: 8px;
+    left: -24px;
+    content: '';
+    width: 0px;
+    height: 0px;
+    border: inherit;
+    border-width: 12px;
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+}
+
+.timeline .panel .panel-heading.icon * { font-size: 20px; vertical-align: middle; line-height: 40px; }
+.timeline .panel .panel-heading.icon {
+    position: absolute;
+    left: -59px;
+    display: block;
+    width: 40px;
+    height: 40px;
+    padding: 0px;
+    border-radius: 50%;
+    text-align: center;
+    float: left;
+}
+
+.timeline .panel-outline {
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+}
+
+.timeline .panel-outline .panel-body {
+    padding: 10px 0px;
+}
+
+.timeline .panel-outline .panel-heading:not(.icon),
+.timeline .panel-outline .panel-footer {
+    display: none;
+}
+</style>
+@endsection
+
+@section('content')
+
+<div class="loader" style="display:none;">
+    <div class="loader-main"><i class="fa fa-spinner fa-pulse"></i></div>
+</div>
+
+<div class="content-body-white">
+
+    <form method="post" action="{{url('update-transaction')}}" enctype="multipart/form-data">
+        {{csrf_field()}}
+        <div class="page-head">
+            <div class="page-title">
+                <h1>History Picking List</h1>
+            </div>
+            
+        </div>
+        <div class="wrapper">
+            <div class="row">
+                @if(session()->has('err_message'))
+                <div class="alert alert-danger alert-dismissible" role="alert" auto-close="10000">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    {{ session()->get('err_message') }}
+                </div>
+                @endif
+                @if(session()->has('succ_message'))
+                <div class="alert alert-success alert-dismissible" role="alert" auto-close="10000">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    {{ session()->get('succ_message') }}
+                </div>
+                @endif
+                <div class="col-md-12 element">
+                    <div class="box-pencarian-family-tree" style=" background: #fff; ">
+                        <div class="row">
+
+                            <div class="col-xl-12 col-md-12 m-b-12px">
+                                <div class="row">
+    
+                                    <div class="col-xl-4 col-md-4 m-b-10px">
+                                        <div class="form-group">
+                                            <label class="form-control-label">PRO : </label>
+                                           
+                                            <input type="number" list="list_pro" id="num" name="pro" autocomplete="off" value="{{ $data['pro']->pro }}" class="form-control" readonly required />
+                                           
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-control-label">Qty : </label>
+                                            <input type="number"  value="{{ $data['pro']->qty }}" readonly id="val_qty" name="qty" class="form-control"
+                                             autocomplete="off"  required />
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-md-4 m-b-10px">
+                                        <div class="form-group">
+                                            <label class="form-control-label">Part Number : </label>
+                                            <input type="text" id="val_pn" name="pn"   value="{{ $data['pro']->pn }}" class="form-control"
+                                                autocomplete="off" readonly required />
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="form-control-label">Picking List : </label>
+                                            <input type="text" id="nopo" name="nopo"  value="{{ $data['po']->nopo }}" class="form-control" autocomplete="off"
+                                                value="" required readonly />
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-md-4 m-b-10px">
+                                        <div class="form-group">
+                                            <label class="form-control-label">Product : </label>
+                                            <input type="text" name="product" id="val_product"  value="{{ $data['pro']->product }}" class="form-control"
+                                                autocomplete="off" readonly required />
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="col-md-12 col-xl-12 m-b-10px">
+                                        <fieldset>
+                                            
+                                            <div class="col-xl-6 col-md-6 m-b-10px">
+                                            <legend>History Status</legend>
+                                            </div>
+                                            <div class="col-xl-2 col-md-2 m-b-10px ">
+                                                <!-- <label for="">Package : </label> -->
+                                            </div>
+                                            <div class="col-xl-4 col-md-2 m-b-10px pull-right">
+                                                <!-- <input type="text" id="package" name="package" class="form-control" onchange="cekPackage(this);" autocomplete="off" placeholder="Optional"> -->
+                                               
+                                                <!-- Calculate :  <input type="checkbox" id="myCheck" disabled onclick="calculate()" required> -->
+                                            </div>
+                                            <table class="table table-bordered timeline">
+                                                <thead>
+                                                    <tr>
+                                                        <th ><div class="line text-muted"></div></th>
+                                                        <th>At</th>
+                                                        <th>By</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @php ($i = 1)
+                                                    @foreach($data['history'] as $history)
+                                                    <tr>
+                                                        <td>  
+                                                        @if($history->flag ==0)
+                                                             <article class="panel panel-default panel-outline">
+                                                                <div class="panel-heading icon">
+                                                                    <i class="glyphicon glyphicon-plus-sign"></i>
+                                                                </div>
+                                                                <div class="panel-body">{{"Picking Created"}}
+                                                                    </div>
+                                                            </article>
+                                                        @elseif($history->flag ==1)
+                                                             <article class="panel panel-warning panel-outline">
+                                                                <div class="panel-heading icon">
+                                                                    <i class="fa fa-paper-plane"></i>
+                                                                </div>
+                                                                <div class="panel-body">{{"Picking Supplied"}}
+                                                                    </div>
+                                                            </article>
+                                                        @elseif($history->flag ==2)
+                                                             <article class="panel panel-info panel-outline">
+                                                                <div class="panel-heading icon">
+                                                                    <i class="fa fa-spinner"></i>
+                                                                </div>
+                                                                <div class="panel-body">{{"Picking Received"}}
+                                                                    </div>
+                                                            </article>
+                                                        @elseif($history->flag ==3)
+                                                             <article class="panel panel-primary panel-outline">
+                                                                <div class="panel-heading icon">
+                                                                    <i class="fa fa-check"></i>
+                                                                </div>
+                                                                <div class="panel-body">{{"Picking Finished"}}
+                                                                    </div>
+                                                            </article>
+                                                        @elseif($history->flag ==5)
+                                                             <article class="panel panel-success panel-outline">
+                                                                <div class="panel-heading icon">
+                                                                    <i class="fa fa-send"></i>
+                                                                </div>
+                                                                <div class="panel-body">{{"Picking Invoiced"}}
+                                                                    </div>
+                                                            </article>
+                                                        @else
+                                                             <article class="panel panel-danger panel-outline">
+                                                                <div class="panel-heading icon">
+                                                                    <i class="fa fa-clipboard"></i>
+                                                                </div>
+                                                                <div class="panel-body">{{"Closed"}}
+                                                                    </div>
+                                                            </article>
+                                                        @endif 
+                                                        </td>
+                                                        
+                                                        <td>{{ $history->created_at }}</td>
+                                                        <td>{{ $history->name }}</td>
+                                                    </tr>
+                                                    @php ($i = $i+1)
+                                                    @endforeach
+                                                </tbody>
+                                              
+                                            </table>
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-md-12 col-xl-12 m-b-10px">
+                                        <fieldset>
+                                            
+                                            <div class="col-xl-6 col-md-6 m-b-10px">
+                                            <legend>List Component</legend>
+                                            </div>
+                                            <div class="col-xl-2 col-md-2 m-b-10px ">
+                                                <!-- <label for="">Package : </label> -->
+                                            </div>
+                                            <div class="col-xl-4 col-md-2 m-b-10px pull-right">
+                                                <!-- <input type="text" id="package" name="package" class="form-control" onchange="cekPackage(this);" autocomplete="off" placeholder="Optional"> -->
+                                               
+                                                <!-- Calculate :  <input type="checkbox" id="myCheck" disabled onclick="calculate()" required> -->
+                                            </div>
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>PN Patria</th>
+                                                        <th width="300">Description</th>
+                                                        <th>PN Vendor</th>
+                                                        <th>Price</th>
+                                                        <th width="75">Uom</th>
+                                                        <th width="100">Qty Order</th>
+                                                        <th width="100">Qty Supply</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @php ($i = 1)
+                                                    @foreach($data['tkomponen'] as $tkomponen)
+                                                    <tr>
+                                                        <td><input type="text" value="{{ $tkomponen->pn_patria }}" name="pn_patria[]" id="val_pn_patria1"
+                                                                class="form-control" autocomplete="off" required readonly>
+                                                                <input type="hidden" name="idkom[]"  value="{{ $tkomponen->id }}"></td>  
+                                                              
+                                                        <!-- <td><input type="text" name="desc[]" class="form-control" autocomplete="off"></td>    -->
+                                                        <td> <textarea name="desc[]" id="desc"
+                                                                class="form-control" autocomplete="off" required readonly>{{ $tkomponen->description }}
+                                                            </textarea>
+                                                            <!-- <input type="text" value="{{ $tkomponen->description }}" name="desc[]" id="desc"
+                                                                class="form-control" autocomplete="off" required readonly> -->
+                                                                <input type="hidden" name="description[]" id="val_descrip"
+                                                                class="form-control" autocomplete="off"  value="{{ $tkomponen->description }}" required=""
+                                                                readonly></td>
+                                                           </td>
+                                                        </td>
+
+                                                        <td><input type="text" name="pn_vendor[]" id="vaL_pn_vendor" value="{{ $tkomponen->is_pn_vendor }}"
+                                                                class="form-control" autocomplete="off"  readonly></td>
+                                                        <td><input type="text" name="price[]"  value="{{ $tkomponen->is_price }}" class="form-control" autocomplete="off" readonly></td>   
+                                                        
+                                                        <td><input type="text" name="uom[]"  value="{{ $tkomponen->uom }}" readonly class="form-control" autocomplete="off"></td>  
+                                                        <td><input type="number" id="quantity"  name="quantity[]"
+                                                                class="form-control quantity" autocomplete="off" readonly value="{{ $tkomponen->qty_order }}"
+                                                                required=""></td>
+                                                        <td>@if($tkomponen->qty_supply==0) 
+                                                            <input type="number" id="qty_supply"  name="qty_supply[]"
+                                                                class="form-control quantity" autocomplete="off" value="{{ $tkomponen->qty_order }}"
+                                                                required="" readonly>
+                                                            @else
+                                                            <input type="number" id="qty_supply"  name="qty_supply[]"
+                                                                class="form-control quantity" autocomplete="off" value="{{ $tkomponen->qty_supply }}"
+                                                                required="" readonly>
+                                                            @endif</td>
+                                                    </tr>
+                                                    @php ($i = $i+1)
+                                                    @endforeach
+                                                </tbody>
+                                              
+                                            </table>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+         
+        </div>
+    </form>
+</div>
+
+@endsection
+
+@section('myscript')
+
+<script src="{{ asset('assets/global/plugins/select2/js/select2.min.js') }}"></script>
+<script src="{{ asset('js/add-family.js') }}"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+<script type="text/javascript">
+    $('tbody').delegate('.quantity,.budget', 'keyup', function () {
+        var tr = $(this).parent().parent();
+        var quantity = tr.find('.quantity').val();
+        var budget = tr.find('.budget').val();
+        var amount = (quantity * budget);
+        tr.find('.amount').val(amount);
+        total();
+    });
+    function total() {
+        var total = 0;
+        $('.amount').each(function (i, e) {
+            var amount = $(this).val() - 0;
+            total += amount;
+        });
+        $('.total').html(total + ".00 tk");
+    }
+    $('.addRow').on('click', function () {
+        addRow();
+    });
+    function addRow() {
+        // console.log($('tbody tr').length);
+        var lgtr = $('tbody tr').length;
+        console.log("row tr");
+        console.log(lgtr);
+        var tr = '<tr>' +
+            '<td><input type="text" name="pn_patria[]" id="val_pn_patria' + lgtr + '" class="form-control" autocomplete="off" required="" ></td>' +
+            '<td> <select id="sel_desc" class="form-control" name="desc[]"   onchange="getvalue(this);" required> <option value="0">-- Select department --</option> @foreach($data["komponen"] as $komponen)<option value="{{ $komponen->pn_patria }}">{{ $komponen->description }}</option> @endforeach</select> <input type="hidden" name="description[]" id="val_descrip' + lgtr + '" class="form-control" autocomplete="off" readonly></td>' +
+            '<td><input type="text" name="pn_vendor[]" id="val_pn_vendor' + lgtr + '" class="form-control" autocomplete="off" readonly=""></td>' +
+            '<td><input type="number" id="quantity' + lgtr + '" name="quantity[]" class="form-control quantity"  autocomplete="off" required=""></td>' +
+            '<td><a href="#" class="btn btn-danger remove"><i class="glyphicon glyphicon-remove"></i></a></td>' +
+            '</tr>';
+        $('tbody').append(tr);
+    };
+    $('.remove').live('click', function () {
+        var last = $('tbody tr').length;
+        if (last == 1) {
+            alert("you can not remove last row");
+        }
+        else {
+            $(this).parent().parent().remove();
+        }
+
+    });
+    function getval(sel,i) {
+        var id = sel.value;
+        var no = i.value;
+
+        // AJAX request 
+        $.ajax({
+            url:  "{{ url('get-komponen') }}/" + id,
+            type: 'get',
+            dataType: 'json',
+            success: function (response) {
+
+                console.log(response['data']);
+                console.log(response['data'].pn_patria);
+                console.log(response['data'].description);
+                document.getElementById("val_pn_patria1").value = response['data'].pn_patria;
+                document.getElementById("val_descrip").value = response['data'].description;
+                document.getElementById("val_pn_vendor").value = response['data'].pn_patria;
+            }
+        });
+    }
+    
+    function cekPackage(sel) {
+        var id = sel.value;
+
+        // AJAX request 
+        $.ajax({
+            url: "{{ url('get-package') }}/" + id,
+            type: 'get',
+            dataType: 'json',
+            success: function (response) {
+
+                console.log(response['data']);
+                if(response['data']==null){
+                    console.log("Blm ada");
+                    document.getElementById("myBtn").disabled = false;
+                }else{
+                    console.log("Sudah ada");
+                    alert("Package Name Already Exist");
+                    document.getElementById("package").value = '';
+                }
+            }
+        });
+    }
+    function getvalue(sel) {
+        var id = sel.value;
+        var lg = $('tbody tr').length - 1;
+        // console.log("get val tr");
+        // console.log(lg);
+        // AJAX request 
+        $.ajax({
+            url: "{{ url('get-komponen') }}/" + id,
+            type: 'get',
+            dataType: 'json',
+            success: function (response) {
+
+                console.log(response['data']);
+                console.log(response['data'].pn_patria);
+                document.getElementById("val_descrip" + lg + "").value = response['data'].description;
+                document.getElementById("val_pn_patria" + lg + "").value = response['data'].pn_patria;
+                document.getElementById("val_pn_vendor" + lg + "").value = response['data'].pn_vendor;
+            }
+        });
+    }
+    function getpro(sel) {
+        var id = sel.value;
+
+        // AJAX request 
+        $.ajax({
+            url: "{{ url('get-pro') }}/"+id,
+            type: 'get',
+            dataType: 'json',
+            success: function (response) {
+                console.log(response['data'][0]);
+                console.log(response['pro']);
+                console.log(response['data'][0].PN);
+                document.getElementById("nopo").value = id+"-"+response['pro'];
+                document.getElementById("val_pn").value = response['data'][0].PN;
+                document.getElementById("val_product").value = response['data'][0].Name;
+                document.getElementById("val_qty").value = response['data'][0].Quantity;
+                document.getElementById("val_cust").value = response['data'][0].CustomerName;
+                document.getElementById("package").value = response['data'][0].PN;
+            }
+        });
+        if(document.getElementById("quantity").value != ''){
+            document.getElementById("myCheck").disabled = false;
+        }
+    }
+    function calculate(){
+		var checkBox = document.getElementById("myCheck");
+        var lg = $('tbody tr').length - 1;
+        console.log("tr");
+        console.log(lg);
+        if(document.getElementById("quantity").value != ''){
+            if (checkBox.checked == true){
+                document.getElementById("addRow").style.pointerEvents = "none";
+                document.getElementById("val_qty").readOnly = true;
+                document.getElementById("quantity").value = document.getElementById("val_qty").value*document.getElementById("quantity").value; 
+                for (i = 1; i <= lg; i++) {
+                    document.getElementById("quantity" + i + "").value = document.getElementById("val_qty").value*document.getElementById("quantity" + i + "").value;
+                }
+            }else{
+                document.getElementById("addRow").style.pointerEvents = "auto";
+                document.getElementById("val_qty").readOnly = false;
+                document.getElementById("quantity").value = document.getElementById("quantity").value/document.getElementById("val_qty").value;
+                for (i = 1; i <= lg; i++) {
+                    document.getElementById("quantity" + i + "").value = document.getElementById("quantity" + i + "").value/document.getElementById("val_qty").value;
+                }
+            }
+        }
+    }
+    function cekQty(){
+        if(document.getElementById("val_qty").value != ''){
+            document.getElementById("myCheck").disabled = false;
+        }
+    }
+</script>
+
+
+<script>
+    $('[type=tel]').on('change', function (e) {
+        $(e.target).val($(e.target).val().replace(/[^\d\.]/g, ''))
+    });
+    $('[type=tel]').on('keypress', function (e) {
+        keys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']
+        return keys.indexOf(event.key) > -1
+    });
+    $(document).on('submit', 'form', function () {
+        $(".loader").attr("style", "display:block;");
+    });
+</script>
+@endsection
